@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABC South Indian Restaurant - Customer Support Chatbot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .strategy-selector {
+            background: #f5f5f5;
+            padding: 15px 20px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .strategy-selector label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .strategy-selector select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .strategy-selector small {
+            color: #666;
+            font-style: italic;
+        }
+
+        .chat-window {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #fafafa;
+            border-radius: 0;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            animate: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message.bot {
+            justify-content: flex-start;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 8px;
+            word-wrap: break-word;
+            line-height: 1.4;
+        }
+
+        .user .message-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-bottom-right-radius: 2px;
+        }
+
+        .bot .message-content {
+            background: #e5e5ea;
+            color: #333;
+            border-bottom-left-radius: 2px;
+        }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #ddd;
+            border-radius: 0 0 12px 12px;
+        }
+
+        .input-area input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .input-area input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .input-area button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .input-area button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .input-area button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .system-message {
+            text-align: center;
+            color: #999;
+            font-size: 13px;
+            margin: 10px 0;
+            font-style: italic;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #667eea;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+            margin: 0 2px;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 0.3;
+                transform: scale(0.8);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .reset-button {
+            padding: 8px 16px;
+            background: #f0f0f0;
+            color: #666;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .reset-button:hover {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .strategy-info {
+            background: #e3f2fd;
+            padding: 10px 15px;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #1565c0;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🍲 ABC South Indian Restaurant</h1>
+            <p>Customer Support Chatbot - Prompt Engineering Demo</p>
+        </div>
+
+        <div class="strategy-selector">
+            <label>Prompting Strategy:</label>
+            <select id="strategySelect">
+                <option value="zero-shot">Zero-Shot Prompting</option>
+                <option value="few-shot">Few-Shot Prompting</option>
+                <option value="chain-of-thought">Chain-of-Thought Prompting</option>
+            </select>
+            <button class="reset-button" onclick="resetConversation()">Reset Chat</button>
+        </div>
+
+        <div class="chat-window" id="chatWindow">
+            <div class="system-message">Welcome to ABC South Indian Restaurant support chat! Select a prompting strategy above and start asking questions.</div>
+            <div class="strategy-info" id="strategyInfo">
+                <strong>Zero-Shot:</strong> Single comprehensive instruction set without examples.
+            </div>
+        </div>
+
+        <div class="input-area">
+            <input 
+                type="text" 
+                id="userInput" 
+                placeholder="Ask about our menu, prices, or recommendations..." 
+                onkeypress="handleKeyPress(event)"
+            >
+            <button id="sendBtn" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let currentStrategy = 'zero-shot';
+        let isLoading = false;
+
+        // Strategy descriptions
+        const strategyDescriptions = {
+            'zero-shot': '<strong>Zero-Shot:</strong> Clean single prompt, no examples. Best for factual questions about menu and pricing.',
+            'few-shot': '<strong>Few-Shot:</strong> Includes 5 example conversations teaching tone and patterns. Best for complex interactions.',
+            'chain-of-thought': '<strong>Chain-of-Thought:</strong> Step-by-step internal reasoning framework. Best for comparisons and complex queries.'
+        };
+
+        // Update strategy info
+        document.getElementById('strategySelect').addEventListener('change', (e) => {
+            currentStrategy = e.target.value;
+            document.getElementById('strategyInfo').innerHTML = strategyDescriptions[currentStrategy];
+        });
+
+        async function sendMessage() {
+            const userInput = document.getElementById('userInput');
+            const message = userInput.value.trim();
+
+            if (!message || isLoading) return;
+
+            // Add user message to chat
+            addMessageToChat(message, 'user');
+            userInput.value = '';
+            isLoading = true;
+            document.getElementById('sendBtn').disabled = true;
+
+            try {
+                // Call backend API
+                const response = await fetch(`${API_URL}/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        strategy: currentStrategy
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to get response from chatbot');
+                }
+
+                const data = await response.json();
+                
+                // Add bot response to chat
+                addMessageToChat(data.response, 'bot');
+            } catch (error) {
+                console.error('Error:', error);
+                addMessageToChat('Sorry, I encountered an error. Please try again.', 'bot');
+            } finally {
+                isLoading = false;
+                document.getElementById('sendBtn').disabled = false;
+                document.getElementById('userInput').focus();
+            }
+        }
+
+        function addMessageToChat(message, sender) {
+            const chatWindow = document.getElementById('chatWindow');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.textContent = message;
+            
+            messageDiv.appendChild(contentDiv);
+            chatWindow.appendChild(messageDiv);
+            
+            // Auto-scroll to bottom
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        async function resetConversation() {
+            if (confirm('Reset conversation history?')) {
+                try {
+                    await fetch(`${API_URL}/reset`, {
+                        method: 'POST'
+                    });
+                    
+                    // Clear chat window
+                    const chatWindow = document.getElementById('chatWindow');
+                    chatWindow.innerHTML = '<div class="system-message">Chat history cleared. Start fresh!</div>';
+                } catch (error) {
+                    console.error('Error resetting conversation:', error);
+                }
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // Focus input on page load
+        window.onload = () => {
+            document.getElementById('userInput').focus();
+        };
+    </script>
+</body>
+</html>

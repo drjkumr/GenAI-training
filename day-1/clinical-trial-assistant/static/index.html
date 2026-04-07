@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clinical Trial Protocol Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar for Upload -->
+        <aside class="sidebar">
+            <h1 class="logo">TrialAssist</h1>
+            <p class="subtitle">AI Protocol Analyzer</p>
+            
+            <div class="upload-section">
+                <h3>Upload Protocol (PDF)</h3>
+                <div class="upload-box" id="uploadBox">
+                    <input type="file" id="pdfInput" accept="application/pdf" hidden>
+                    <label for="pdfInput" class="upload-label">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                        <span id="fileName">Click to select PDF</span>
+                    </label>
+                </div>
+                <button id="uploadBtn" class="primary-btn" disabled>Process Document</button>
+                <div id="uploadStatus" class="status-message"></div>
+            </div>
+            
+            <div class="info-section">
+                <p class="info-text">MVP Constraints: Only one active protocol document at a time.</p>
+            </div>
+        </aside>
+
+        <!-- Main Chat Area -->
+        <main class="chat-area">
+            <header class="chat-header">
+                <h2>Protocol Q&A System</h2>
+            </header>
+            
+            <div class="chat-messages" id="chatMessages">
+                <div class="message system-msg">
+                    <div class="msg-content">
+                        Welcome to TrialAssist. Please upload a protocol PDF to begin analyzing inclusion/exclusion criteria, trial timelines, and adverse event protocols.
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-input-container">
+                <input type="text" id="questionInput" placeholder="Ask a question about the protocol..." disabled>
+                <button id="sendBtn" class="send-btn" disabled>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                </button>
+            </div>
+        </main>
+    </div>
+    <script src="/static/app.js"></script>
+</body>
+</html>

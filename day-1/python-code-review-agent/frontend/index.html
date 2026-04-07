@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Code Review Agent</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
+            background: #0d1117;
+            color: #c9d1d9;
+            padding: 0;
+            height: 100vh;
+        }
+
+        #app {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .header {
+            padding: 16px 20px;
+            background: #010409;
+            border-bottom: 1px solid #30363d;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .header p {
+            font-size: 12px;
+            color: #8b949e;
+        }
+
+        .review-btn {
+            padding: 8px 16px;
+            background: #238636;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .review-btn:hover:not(:disabled) {
+            background: #2ea043;
+        }
+
+        .review-btn:disabled {
+            background: #30363d;
+            cursor: wait;
+            opacity: 0.6;
+        }
+
+        .container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
+            border-right: 1px solid #30363d;
+        }
+
+        .panel:last-child {
+            border-right: none;
+        }
+
+        .panel label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #79c0ff;
+            text-transform: uppercase;
+        }
+
+        textarea, .output-box {
+            flex: 1;
+            padding: 12px;
+            background: #010409;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #c9d1d9;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            resize: none;
+            outline: none;
+        }
+
+        textarea:focus {
+            border-color: #58a6ff;
+        }
+
+        .output-box {
+            white-space: pre-wrap;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            cursor: default;
+            user-select: text;
+        }
+
+        .status {
+            padding: 12px;
+            background: #161b22;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            font-size: 13px;
+            text-align: center;
+            color: #8b949e;
+        }
+
+        .status.loading {
+            color: #79c0ff;
+        }
+
+        .status.error {
+            color: #f85149;
+            background: #2d1f1a;
+        }
+
+        .status.success {
+            color: #3fb950;
+            background: #1a3a1a;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="header">
+            <div>
+                <h1>🐍 Python Code Review Agent</h1>
+                <p>Self-reflecting AI code analysis with Claude Haiku</p>
+            </div>
+            <button class="review-btn" id="reviewBtn">Review Code</button>
+        </div>
+
+        <div class="container">
+            <!-- INPUT PANEL -->
+            <div class="panel">
+                <label>Python Code Input</label>
+                <textarea id="codeInput" placeholder="Paste your Python code here..."></textarea>
+            </div>
+
+            <!-- OUTPUT PANEL -->
+            <div class="panel">
+                <label>AI Analysis & Self-Reflected Suggestions</label>
+                <div id="status" class="status"></div>
+                <div class="output-box" id="output">
+                    Enter Python code and click "Review Code" to start
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const codeInput = document.getElementById('codeInput');
+        const reviewBtn = document.getElementById('reviewBtn');
+        const output = document.getElementById('output');
+        const status = document.getElementById('status');
+
+        reviewBtn.addEventListener('click', async () => {
+            const code = codeInput.value.trim();
+
+            if (!code) {
+                status.className = 'status error';
+                status.textContent = '❌ Please enter Python code';
+                return;
+            }
+
+            // Disable button and show loading
+            reviewBtn.disabled = true;
+            status.className = 'status loading';
+            status.textContent = '⏳ Analyzing code (AST) → Initial review → Self-reflection...';
+            output.textContent = '';
+
+            try {
+                // Call backend API
+                const response = await fetch('http://localhost:5000/review', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Server error');
+                }
+
+                const result = await response.json();
+
+                // Display results
+                let displayText = '';
+
+                // Show AST findings
+                if (result.astFindings) {
+                    displayText += '=== STATIC ANALYSIS (AST) ===\n';
+                    displayText += `Syntax Valid: ${result.astFindings.syntax_valid ? '✅' : '❌'}\n`;
+
+                    if (result.astFindings.functions.length > 0) {
+                        displayText += `Functions: ${result.astFindings.functions.map(f => f.name).join(', ')}\n`;
+                    }
+                    if (result.astFindings.classes.length > 0) {
+                        displayText += `Classes: ${result.astFindings.classes.map(c => c.name).join(', ')}\n`;
+                    }
+                    if (result.astFindings.issues.length > 0) {
+                        displayText += `Issues Found: ${result.astFindings.issues.length}\n`;
+                    }
+                    displayText += '\n';
+                }
+
+                // Show AI analysis (after self-reflection)
+                displayText += '=== AI SUGGESTIONS (After Self-Reflection) ===\n\n';
+                displayText += result.improvedSuggestions || 'No suggestions';
+
+                output.textContent = displayText;
+                status.className = 'status success';
+                status.textContent = '✅ Analysis complete! AI performed self-reflection to improve suggestions.';
+
+            } catch (err) {
+                status.className = 'status error';
+                status.textContent = `❌ Error: ${err.message}`;
+                output.textContent = '';
+            } finally {
+                reviewBtn.disabled = false;
+            }
+        });
+
+        // Allow Enter+Ctrl to submit
+        codeInput.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                reviewBtn.click();
+            }
+        });
+    </script>
+</body>
+</html>

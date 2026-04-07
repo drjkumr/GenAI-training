@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Solver - Chain-of-Thought</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 700px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .solution-area {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            display: none;
+        }
+
+        .solution-area.show {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .solution-title {
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 12px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .problem-text {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 16px;
+            padding: 12px;
+            background: white;
+            border-radius: 6px;
+        }
+
+        .solution-text {
+            color: #333;
+            line-height: 1.6;
+            font-size: 14px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .error {
+            color: #d32f2f;
+            padding: 12px;
+            background: #ffebee;
+            border-radius: 6px;
+            margin-top: 20px;
+            border-left: 4px solid #d32f2f;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .info {
+            color: #666;
+            font-size: 12px;
+            margin-top: 20px;
+            padding: 12px;
+            background: #e8eaf6;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info strong {
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧮 Math Solver</h1>
+        <p class="subtitle">Ask a math question and get step-by-step solutions powered by AI</p>
+
+        <div class="input-group">
+            <label for="problemInput">Enter a math problem:</label>
+            <input
+                type="text"
+                id="problemInput"
+                placeholder="e.g., What is 25% of 80? or Solve: 2x + 5 = 15"
+                onkeypress="handleKeyPress(event)"
+            />
+        </div>
+
+        <button id="solveBtn" onclick="solveProblem()">
+            Solve Problem
+        </button>
+
+        <div id="error" class="error"></div>
+        <div id="solutionArea" class="solution-area">
+            <div class="solution-title">✓ Solution</div>
+            <div class="problem-text">
+                <strong>Problem:</strong> <span id="problemDisplay"></span>
+            </div>
+            <div class="solution-text" id="solutionText"></div>
+        </div>
+
+        <div class="info">
+            <strong>Note:</strong> Uses Claude Haiku 4.5 for fast, step-by-step reasoning. Make sure the backend is running on localhost:3001
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3001/solve';
+
+        // Handle Enter key press
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                solveProblem();
+            }
+        }
+
+        // Main function to solve the problem
+        async function solveProblem() {
+            // Get input value
+            const problemInput = document.getElementById('problemInput');
+            const problem = problemInput.value.trim();
+
+            // Validate input
+            if (!problem) {
+                showError('Please enter a math problem');
+                return;
+            }
+
+            // Clear previous error
+            hideError();
+
+            // Disable button and show loading state
+            const solveBtn = document.getElementById('solveBtn');
+            const originalText = solveBtn.textContent;
+            solveBtn.disabled = true;
+            solveBtn.innerHTML = '<span class="spinner"></span>Solving...';
+
+            try {
+                // Call the backend API
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ problem: problem }),
+                });
+
+                // Check if response is ok
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP ${response.status}`);
+                }
+
+                // Parse the response
+                const data = await response.json();
+
+                // Display the solution
+                displaySolution(data.problem, data.solution);
+
+            } catch (error) {
+                // Handle error
+                const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+                showError(`Error: ${errorMsg}`);
+                console.error('Error:', error);
+            } finally {
+                // Re-enable button
+                solveBtn.disabled = false;
+                solveBtn.textContent = originalText;
+            }
+        }
+
+        // Display the solution
+        function displaySolution(problem, solution) {
+            document.getElementById('problemDisplay').textContent = problem;
+            document.getElementById('solutionText').textContent = solution;
+            document.getElementById('solutionArea').classList.add('show');
+        }
+
+        // Show error message
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+        }
+
+        // Hide error message
+        function hideError() {
+            const errorDiv = document.getElementById('error');
+            errorDiv.classList.remove('show');
+        }
+
+        // Focus input on page load
+        window.addEventListener('load', () => {
+            document.getElementById('problemInput').focus();
+        });
+    </script>
+</body>
+</html>
