@@ -1,0 +1,30 @@
+CHATBOT TEST RESULTS
+Overall Functionality Score: 10.0/10
+
+Test Case: Semantic Support (Closing Time)
+Input: When is the restaurant shut?
+Category: support
+Response: the abc south indian restaurant is **open from 7:00 am to 10:00 pm every day**. so we are closed between 10:00 pm and 7:00 am.
+
+is there anything else i can help you with? would you like to know about our menu or make a reservation?
+Status: PASSED
+------------------------------
+Test Case: Menu Query (RAG)
+Input: How much for a Plain Dosa and Coffee?
+Category: support
+Response: great choice! here's the pricing for you:
+
+- **plain dosa**: rs. 150
+- **coffee**: rs. 25
+
+**total**: rs. 175
+
+both items are prepared with high quality ingredients in a hygienic way. is there anything else you'd like to order today?
+Status: PASSED
+------------------------------
+Test Case: Menu Suggestion (Routing)
+Input: You should definitely add Masala Dosa to your menu!
+Category: suggestion
+Response: thank you so much for your suggestion! 📝 we're always looking to improve our menu at abc south indian. i've shared your idea with our kitchen staff. would you like to order something from our current menu while we consider that?
+Status: PASSED
+------------------------------
