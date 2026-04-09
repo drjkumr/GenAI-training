@@ -12,5 +12,3 @@ Welcome to **Hexaware's GenAI 5 Day Program for Mavericks** — a curated journe
 This repo is your launchpad to experiment, learn, and build with GenAI.
 
 ---
-
-## 🗂️ Structure
