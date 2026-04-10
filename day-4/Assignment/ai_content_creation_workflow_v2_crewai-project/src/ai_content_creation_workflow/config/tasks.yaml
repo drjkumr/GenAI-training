@@ -1,0 +1,38 @@
+---
+research_latest_ai_trends:
+  description: Conduct comprehensive research to find the latest AI trends and developments
+    related to {topic}. Use web search to gather information from authoritative sources,
+    industry reports, research papers, and expert opinions. Focus on recent developments,
+    emerging technologies, market trends, and expert insights.
+  expected_output: 'A detailed research report in markdown format containing: 1) Summary
+    of latest trends and developments, 2) Key findings from authoritative sources,
+    3) Market analysis and statistics, 4) Expert opinions and insights, 5) Properly
+    cited sources and references for all information gathered.'
+  agent: researcher
+write_blog_post:
+  description: Based on the research findings about {topic}, write a compelling and
+    engaging blog post that transforms the research data into an informative and readable
+    article. Structure the content with clear headings, engaging introduction, well-organized
+    body sections, and a strong conclusion. Ensure the content is accessible to the
+    target audience while maintaining accuracy.
+  expected_output: 'A complete blog post in markdown format with: 1) Catchy title,
+    2) Engaging introduction that hooks the reader, 3) Well-structured body sections
+    with clear headings, 4) Key insights and trends presented in an accessible way,
+    5) Compelling conclusion that summarizes key points, 6) Proper formatting with
+    headings, bullet points, and emphasis where appropriate.'
+  agent: writer
+  context:
+  - research_latest_ai_trends
+review_and_polish_blog_post:
+  description: Review and polish the draft blog post about {topic} to ensure it meets
+    the highest editorial standards. Check for accuracy, clarity, grammar, spelling,
+    style consistency, and overall flow. Verify that all claims are supported by the
+    research, improve readability, and ensure the content is publication-ready.
+  expected_output: 'A finalized, publication-ready blog post in markdown format that
+    has been thoroughly reviewed and polished with: 1) Perfect grammar and spelling,
+    2) Consistent style and tone, 3) Clear and engaging content flow, 4) Verified
+    accuracy of all claims and statistics, 5) Optimized readability and structure,
+    6) Final quality check confirmation that the content is ready for publication.'
+  agent: reviewer
+  context:
+  - write_blog_post

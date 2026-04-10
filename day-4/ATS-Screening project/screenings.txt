@@ -1,0 +1,20 @@
+role: Software Engineer
+skills: Python, React, FastAPI, SQL, Docker
+project_buzzwords: Microservices, Cloud Native, CI/CD, Agile
+education: Bachelor's in Computer Science
+experience: 3+ years
+random_notes: Must be a team player and have a growth mindset. Remote-friendly.
+
+role: Data Scientist
+skills: Python, PyTorch, Scikit-learn, Statistics, Pandas
+project_buzzwords: Transformer, NLP, Predictive Modeling, A/B Testing
+education: Master's in Data Science or Statistics
+experience: 2+ years
+random_notes: Knowledge of LLMs is a plus. Experience with high-throughput data processing.
+
+role: Product Manager
+skills: Product Roadmap, Jira, User Research, Stakeholder Management
+project_buzzwords: UX Design, GTM Strategy, Agile, Scrum
+education: MBA or equivalent
+experience: 5+ years
+random_notes: Strong communication skills and ability to lead cross-functional teams.
